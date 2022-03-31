@@ -1,5 +1,7 @@
 # [Chromania](https://impawstarlight.github.io/chromania)
-A collection of color tools
+A collection of color tools\
+[Click here](https://github.com/impawstarlight/chromania)
+for live demo
 
 - **Name**\
 Find the name of a desired color from
