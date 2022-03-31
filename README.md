@@ -1,4 +1,4 @@
-# [Chromania](impawstarlight.github.io/chromania)
+# [Chromania](https://impawstarlight.github.io/chromania)
 A collection of color tools
 
 - **Name**\
@@ -24,9 +24,9 @@ so I'll put off writing this part untill it's necessary
 ## Credits
 
 ***List of color names***\
-[github.meodai/color-names](github.com/meodai/color-names)
+[github.meodai/color-names](https://github.com/meodai/color-names)
 
 ***Inspired from***\
-[Name that Color](chir.ag/projects/name-that-color)
+[Name that Color](https://chir.ag/projects/name-that-color)
 
 
