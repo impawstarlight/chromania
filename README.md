@@ -1,4 +1,4 @@
-# [Chromania](impawstarlight.github.io/Chromania)
+# [Chromania](impawstarlight.github.io/chromania)
 A collection of color tools
 
 - **Name**\
