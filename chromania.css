@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Condensed&display=swap");
+
 body {
 	--bg-1: #282828;
 	--bg-2: #333;
@@ -460,10 +462,3 @@ input[type=range]::-moz-range-thumb {
 .live .slider::-moz-range-track {
 	background: none;
 }
-
-
-
-
-
-
-
