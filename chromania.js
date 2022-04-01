@@ -423,7 +423,7 @@ function nameSearch() {
 	
 	const A = [], max = 100;
 	// allow user regexp
-	const b = this.value.match(/[!-\/:-@\[-`{-~]/) ? "" : "\\b";
+	const b = this.value.match(/(?=[!-~])[^\w]/) ? "" : "\\b";
 	const rgx = new RegExp(b+this.value, "i");
 	for (let c of colors) {
 		if (c[0].match(rgx)) {
