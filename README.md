@@ -26,7 +26,7 @@ so I'll put off writing this part untill it's necessary
 ## Credits
 
 ***List of color names***\
-[github.meodai/color-names](https://github.com/meodai/color-names)
+[Github/meodai/color-names](https://github.com/meodai/color-names)
 
 ***Inspired from***\
 [Name that Color](https://chir.ag/projects/name-that-color)
