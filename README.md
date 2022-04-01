@@ -1,6 +1,6 @@
 # [Chromania](https://impawstarlight.github.io/chromania)
 A collection of color tools\
-[Click here](https://github.com/impawstarlight/chromania)
+[Click here](https://impawstarlight.github.io/chromania)
 for live demo
 
 - **Name**\
