@@ -259,6 +259,9 @@ const Cc = (function() {
 	
 	function xyz2luv(xyz) {
 		let [x,y,z] = xyz;
+		if (x+y+z === 0)
+			return [0, 0, 0];
+		
 		let _y = y/rw[1];
 		
 		let l, u, v;
@@ -274,13 +277,14 @@ const Cc = (function() {
 	}
 	
 	function luv2xyz(luv) {
+		if (luv[0] === 0)
+			return [0, 0, 0];
+		
 		let [l, u, v] = luv;
-		let x, y, z;
-		
-		(!l) && (l = 0.1); // fix div by zero
-		
 		u = _u + u/(13*l);
 		v = _v + v/(13*l);
+		
+		let x, y, z;
 		
 		y = (l > 8) ? ((l+16)/116)**3 : l/_k;
 		y *= 100;
@@ -323,7 +327,6 @@ const Cc = (function() {
 				[i,j,k] = lab2;
 		
 		return sqrt((i-f)**2 + (j-g)**2 + (k-h)**2);
-		
 	}
 	
 	function deltaE94(lab1, lab2) {
@@ -429,11 +432,13 @@ const Cc = (function() {
 		deltaE94,
 		deltaE00,
 		
-		// Denormalized for Chromania
+		// Shortcuts for Chromania
 		rgb2dhsv: (rgb) => dhsx(rgb2hsv(rgb)),
 		rgb2dhsl: (rgb) => dhsx(rgb2hsl(rgb)),
 		dhsv2rgb: (hsv) => hsv2rgb(nhsx(hsv)),
 		dhsl2rgb: (hsl) => hsl2rgb(nhsx(hsl)),
+		// 03/04/2022
+		nrgb2safehex: rgb => rgb2hex(crgb(drgb(rgb))),
 		
 		// ntc
 		name,
@@ -529,7 +534,7 @@ const Cc = (function() {
 			let lab2 = colors[i][2];
 			let d = deltaE00(lab1, lab2);
 			if (d <= range)
-				arr.push(colors[nd].slice(0, 2).concat(nd, df));
+				arr.push(colors[i].concat(d, i));
 		}
 		
 		return arr;
