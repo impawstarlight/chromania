@@ -301,7 +301,7 @@ function livegradrgb() {
 		GR.push(Cc.rgb2hex(Cc.crgb(arr)));
 		arr[imdex] = 255;
 		GR.push(Cc.rgb2hex(Cc.crgb(arr)));
-		sld[i].setAttribute("data", (sld[i].style.backgroundImage = `linear-gradient(to right, ${GR.join()})`));
+		sld[i].style.backgroundImage = `none, linear-gradient(to right, ${GR.join()})`;
 		
 	}
 	
@@ -321,7 +321,7 @@ function livegradrgb() {
 		}
 		arr[imdex] = 100;
 		GR.push(Cc.nrgb2safehex(Cc[method](arr)));
-		sld[i].style.backgroundImage = `linear-gradient(to right, ${GR.join()})`;
+		sld[i].style.backgroundImage = `none, linear-gradient(to right, ${GR.join()})`;
 	}
 	
 	let H = [];
@@ -331,7 +331,7 @@ function livegradrgb() {
 		H.push(Cc.nrgb2safehex(Cc.dhsv2rgb(arr)));
 	}
 	
-	H = `linear-gradient(to right, ${H.join()})`;
+	H = `none, linear-gradient(to right, ${H.join()})`;
 	sld[3].style.backgroundImage = H;
 	sld[6].style.backgroundImage = H;
 }
