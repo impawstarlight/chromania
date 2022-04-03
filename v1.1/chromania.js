@@ -72,7 +72,7 @@ window.onload = () => {
 	}
 	
 	// name input
-	name.autoWidth = function() { this.style.width = 10+this.value.length+"ch"; }
+	name.autoWidth = function() { this.style.width = "calc("+this.value.length+"ch + 56px)"; }
 	name.addEventListener("input", nameSearch);
 	
 	// random color
