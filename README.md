@@ -5,7 +5,7 @@ for live demo
 
 - **Name**\
 Find the name of a desired color from
-a handpicked list of ~4k color names
+a handpicked list of ~4k [color names](https://github.com/meodai/color-names)
 
 - **Convert**\
 Convert between various color spaces as your need
