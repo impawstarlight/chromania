@@ -33,7 +33,7 @@ body.light-theme {
 
 body {
 	margin: 0;
-	padding-top: 120px;
+	padding: 120px 0;
 	color: var(--text-2);
 	background: var(--bg-2);
 	font: 16px "Ubuntu Condensed";
@@ -88,6 +88,7 @@ body {
 	border-radius: 14px;
 	border-right-width: 32px;
 	max-width: 100%;
+	min-width: 64px;
 }
 
 /* Search icon 31/03/2022 */
@@ -115,16 +116,16 @@ body {
 	z-index: 999;
 	max-height: 0;
 	width: calc(100vw - 40px);
-	margin-top: 75px;
+	margin-top: 81px;
 	box-shadow: 0 2px 4px var(--shadow);
 	overflow: auto;
 	border-radius: 16px;
 	transition: max-height 0.2s !important;
 }
 
-#search-cont:focus-within > #search-result, #search-result.near {
+#search-result.active {
 	-max-height: calc(100vh - 200px);
-	max-height: calc(75vh - 75px);
+	max-height: calc(75vh - 80px);
 }
 
 #search-result > div {
@@ -243,7 +244,7 @@ body {
 	padding-left: 4px;
 }
 
-.hex.given:hover, .hex.given:focus {
+.hex.given:hover, .hex.given:focus, #color-name:focus {
 	border-color: var(--given);
 	box-shadow: 0 0 4px var(--glow);
 }
@@ -251,8 +252,7 @@ body {
 /* Copy & settings icon 02-04-2022 */
 
 svg, svg * {
-	transition: fill 0.2s, opacity 0.2s !important;
-	-outline: 1px dashed var(--given);
+	transition: fill 0.2s !important;
 }
 
 .copy-icon.given {
@@ -271,25 +271,17 @@ svg, svg * {
 	fill: var(--text-1);
 }
 
-/* 03-04-2022 */
-.copy-icon {
-	opacity: 0.75;
-}
-
-.copy-icon:hover {
-	opacity: 1;
-}
-
 /* Settings - 27-03-2022 */
 
 #settings {
-	margin-bottom: 8px;
-	padding: 0 20px;
+	position: fixed;
+	width: 100%;
 	height: 216px;
+	padding: 0 20px;
 	background-image: var(--settings-grad);
 	background-size: 100% 400%;
 	background-position: 0 0%;
-	overflow: hidden;
+	overflow: auto;
 	font-size: 18px;
 	transition: background-position 0.6s, height 0.3s;
 }
@@ -339,11 +331,11 @@ svg, svg * {
 }
 
 .colorspace {
-	margin-bottom: 8px;
+	margin-top: 12px;
 	height: 232px;
 	width: 100%;
 	display: inline-block;
-	-vertical-align: top;
+	vertical-align: top;
 	overflow: hidden;
 	font-size: 18px;
 	transition: width 0.4s, height 0.5s;
@@ -351,7 +343,11 @@ svg, svg * {
 
 .colorspace.collapse {
 	height: 16px !important;
-	width: 45px;
+	width: 6ch;
+}
+
+.colorspace.lchab.collapse, .colorspace.lchuv.collapse {
+	width: 8ch;
 }
 
 .colorspace .container {
@@ -360,10 +356,6 @@ svg, svg * {
 
 .colorspace.collapse .container {
 	opacity: 0;
-}
-
-.colorspace.lchab.collapse, .colorspace.lchuv.collapse {
-	width: 60px;
 }
 
 .hide-cap .colorspace {
@@ -555,5 +547,4 @@ input[type=range]::-moz-range-thumb {
 .live .slider::-moz-range-track {
 	background: none;
 }
-
 
