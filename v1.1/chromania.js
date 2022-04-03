@@ -80,8 +80,8 @@ window.onload = () => {
 	
 	// initial preference
 	cn[0].click();
-	//cn[4].click();
-	cn[7].click();
+	cn[4].click();
+	//cn[7].click();
 	sc[0].click();
 	sc[1].click();
 	
