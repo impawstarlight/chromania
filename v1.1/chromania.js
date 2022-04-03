@@ -218,9 +218,9 @@ function updateOutputPanel(color) {
 	
 	// 09/07/2020
 	if (color === match[1])
-		hex[1].style.display = "none";
+		hex[1].parentElement.style.opacity = "0.5";
 	else
-		hex[1].style.display = "initial";
+		hex[1].parentElement.style.opacity = "";
 	
 	// 30/10/2021
 	if (live) {
@@ -280,6 +280,9 @@ function livegradcie() {
 			
 			for (let gr of A)
 				GR.push(`linear-gradient(to right, ${gr.join()})`);
+			
+			if (!geek) // initial transition fix - 04/04/2022
+				GR.push("none", "none");
 			
 			if (cl[2] === "l")
 				L[j] = GR;
@@ -454,6 +457,7 @@ function nameSearch() {
 	}
 	
 	result.innerHTML = ih;
+	result.classList.add("active");
 }
 
 
@@ -470,15 +474,15 @@ function nearbyColors(e) {
 			ih += `<div class="${dark}" data-delta="${Math.round(c[3]*100)/100}" style="--match: ${c[1]}" onclick='setColor("${c[1]}"); result.innerHTML = "";'>${c[0]}<span>${c[1]}</span></div>\n`;
 		}
 		result.innerHTML = ih;
-		result.classList.add("near");
+		result.classList.add("active");
 	} else
 		setColor();
 }
 
 window.addEventListener("click", globalClick);
 function globalClick(e) {
-	if (result.classList.contains("near") && !e.target.classList.contains("match"))
-		result.classList.remove("near");
+	if (result.classList.contains("active") && !e.target.classList.contains("match"))
+		result.classList.remove("active");
 	
 }
 
