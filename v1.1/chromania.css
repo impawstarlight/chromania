@@ -83,6 +83,7 @@ body {
 	text-align: center;
 	background: var(--bg-3);
 	line-height: 26px !important;
+	padding-left: 4px;
 	border: 1px solid var(--bg-2);
 	border-radius: 14px;
 	border-right-width: 32px;
@@ -122,6 +123,7 @@ body {
 }
 
 #search-cont:focus-within > #search-result, #search-result.near {
+	-max-height: calc(100vh - 200px);
 	max-height: calc(75vh - 75px);
 }
 
@@ -220,7 +222,7 @@ body {
 
 .hex {
 	display: inline-block !important;
-	width: 100px;
+	width: calc(8ch + 52px);
 	line-height: 26px !important;
 	border: 1px solid var(--bg-2);
 	border-radius: 14px;
@@ -312,6 +314,8 @@ svg, svg * {
 	text-align: left;
 	position: relative;
 	margin: 8px 0;
+	white-space: nowrap;
+	overflow-x: auto;
 }
 
 .settings-item::first-line {
@@ -551,10 +555,5 @@ input[type=range]::-moz-range-thumb {
 .live .slider::-moz-range-track {
 	background: none;
 }
-
-
-
-
-
 
 
