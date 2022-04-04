@@ -188,8 +188,8 @@ function update(str) {
 	
 	// rearranging update sequence - 04/04/2022
 	
-	if (live)
-		updateSliderGrad();
+	/*if (live)
+		updateSliderGrad();*/
 	
 	// set color
 	rgb = val.slice(0, 3);
@@ -204,7 +204,8 @@ function update(str) {
 	
 	// timeout to optimize slider
 	tmo = setTimeout(updateName, 0);
-	
+	clearTimeout(this.t);
+	this.t = setTimeout(updateSliderGrad, 0);
 }
 
 
