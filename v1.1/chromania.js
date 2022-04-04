@@ -1,5 +1,5 @@
 let live = false, geek = false;
-let tm = 10; // timeout (ms)
+let tmo; // timeout handle for updateOutput...
 
 const
 	gid = str => document.getElementById(str) 
@@ -71,9 +71,10 @@ window.onload = () => {
 		sld[i].addEventListener("input", sliderInput);
 	}
 	
-	// name input
-	name.autoWidth = function() { this.style.width = "calc("+this.value.length+"ch + 56px)"; }
+	// name search
+	name.autoWidth = function() { this.style.width = "calc("+this.value.length+"ch + 64px)"; }
 	name.addEventListener("input", nameSearch);
+	window.addEventListener("click", globalClick);
 	
 	// random color
 	setColor();
@@ -81,7 +82,6 @@ window.onload = () => {
 	// initial preference
 	cn[0].click();
 	cn[4].click();
-	//cn[7].click();
 	sc[0].click();
 	sc[1].click();
 	
@@ -126,16 +126,15 @@ function createInputPanel() {
 
 
 function setColor(color) {
-	if (typeof color != "string")
-		color = "#"+Math.random().toString(16).slice(-6);
+	if (!color)
+		 color = "#"+Math.random().toString(16).slice(-6);
 	
 	val.splice(0, 3, ...Cc.hex2rgb(color));
-	updateInputPanel("hex");
+	update("hex");
 }
 
-let uip = 0;
-function updateInputPanel(str) {
-	lg(uip++);
+
+function update(str) {
 	let method = str+"2rgb";
 	let index  = 0;
 	
@@ -179,39 +178,45 @@ function updateInputPanel(str) {
 	for (let i = 3; i < val.length; i++)
 		val[i] = Math.round(val[i]*10)/10;
 	
+	// set input element values
 	for (let i = 0; i < val.length; i++)
 		if (str !== sld[i].classList[1])
 			inp[i].value = sld[i].value = val[i];
 		else
 			val[i] = +inp[i].value;
 	
-	// timeout to prevent excessive continuous computational overload
-	clearTimeout(this.t);
-	this.t = setTimeout(updateOutputPanel, tm);
+	
+	// rearranging update sequence - 04/04/2022
+	
+	if (live)
+		updateSliderGrad();
+	
+	// set color
+	rgb = val.slice(0, 3);
+	let clamped_rgb = Cc.crgb(rgb);
+	let color = Cc.rgb2hex(clamped_rgb);
+	dss.setProperty("--given", color);
+	dss.setProperty("--match", color);
+	lg(true)
+	if (clamped_rgb != rgb)
+		color += "*";
+	hex[0].value = color;
+	
+	// timeout to optimize slider
+	tmo = setTimeout(updateName, 0);
+	
 }
 
 
-function updateOutputPanel(color) {
-	let _ = "";
-	
-	if (!color) {
-		let rgb = val.slice(0, 3);
-		let _rgb = Cc.crgb(rgb);
-		if (_rgb != rgb)
-			_ = "*";
-		color = Cc.rgb2hex(_rgb);
-	}
-	
+function updateName() {
+	let color = hex[0].value;
 	let match = Cc.name(color);
-	hex[0].value = color+_; // Looks fancy, doesn't it?
 	hex[1].innerHTML = match[1];
 	name.value = match[0];
 	name.autoWidth();
 	
 	// 07/08/2020
-	dss.setProperty("--given", color);
 	dss.setProperty("--match", match[1]);
-	
 	
 	// 29/07/2020
 	box[1].innerHTML = Math.round(match[3]*100)/100;
@@ -222,22 +227,18 @@ function updateOutputPanel(color) {
 	else
 		hex[1].parentElement.style.opacity = "";
 	
-	// 30/10/2021
-	if (live) {
-		// timeout to prevent excessive continuous computational overload
-		clearTimeout(this.t);
-		this.t = setTimeout(() => {
-			livegradrgb();
-			livegradcie();
-		}, tm);
-	}
 }
 
+// 04/04/2022
+function updateSliderGrad() {
+	livegradrgb();
+	livegradcie();
+}
 
 // 26/03/2022
 function livegradcie() {
 	const {max, min, floor} = Math;
-	const D = 2;
+	const D = 5;
 	const L = [];
 	
 	for (let i = 9; i < 24; i++) {
@@ -294,6 +295,7 @@ function livegradcie() {
 
 // 27/03/2022
 function livegradrgb() {
+	// rgb
 	for (let i = 0; i < 3; i++) {
 		let imdex = i%3; // noimce
 		let index = i-imdex;
@@ -308,6 +310,7 @@ function livegradrgb() {
 		
 	}
 	
+	// sv, sl
 	for (let i = 4; i < 9; i++) {
 		if (i === 6) continue;
 		let method = "d" + sld[i].classList[1] + "2rgb";
@@ -327,6 +330,7 @@ function livegradrgb() {
 		sld[i].style.backgroundImage = `none, linear-gradient(to right, ${GR.join()})`;
 	}
 	
+	// h, h
 	let H = [];
 	let arr = val.slice(3, 6);
 	for (let i = 0; i <= 6; i++) {
@@ -376,7 +380,7 @@ function numInput() {
 	let i = this.parentElement.parentElement.parentElement.classList[1].slice(1);
 	sld[i].value = val[i] = +this.value;
 	
-	updateInputPanel(sld[i].classList[1]);
+	update(sld[i].classList[1]);
 }
 
 
@@ -388,8 +392,9 @@ function btnInput(e) {
 	if (!inp[i].reportValidity())
 		return;
 	
-	updateInputPanel(sld[i].classList[1]);
+	update(sld[i].classList[1]);
 }
+
 
 function sliderInput() {
 	let i = this.parentElement.classList[1].slice(1);
@@ -397,7 +402,8 @@ function sliderInput() {
 	
 	// timeout to prevent excessive continuous computational overload
 	clearTimeout(this.t);
-	this.t = setTimeout(updateInputPanel, tm, sld[i].classList[1]);
+	this.t = setTimeout(update, 0, sld[i].classList[1]);
+	clearTimeout(tmo);
 }
 
 // 28/03/2022
@@ -411,14 +417,15 @@ function settingsChange(e, t) {
 		case 1:
 			live = !live;
 			inpanel.classList.toggle("live");
-			updateOutputPanel();
+			if (live)
+				updateSliderGrad();
 			break;
 			
 		case 2:
 			geek = !geek;
 			inpanel.classList.toggle("geek");
 			if (live && geek)
-				updateOutputPanel();
+				updateSliderGrad();
 			break;
 			
 		case 3:
@@ -438,7 +445,7 @@ function nameSearch() {
 	
 	const A = [], max = 100;
 	// allow user regexp
-	const b = this.value.match(/(?=[!-~])[^\w]/) ? "" : "\\b";
+	const b = this.value.match(/(?=\W)[!-~]/) ? "" : "\\b";
 	const rgx = new RegExp(b+this.value, "i");
 	for (let c of colors) {
 		if (c[0].match(rgx)) {
@@ -464,6 +471,11 @@ function nameSearch() {
 // 01/04/2022
 function nearbyColors(e) {
 	if (e.target.classList.contains("match")) {
+		e.stopPropagation();
+		if (result.classList.contains("active")) {
+			result.classList.remove("active");
+			return;
+		}
 		let A = Cc.near(hex[0].value, 10);
 		A.sort((a, b) => a[3]-b[3]);
 		let ih = "";
@@ -479,9 +491,10 @@ function nearbyColors(e) {
 		setColor();
 }
 
-window.addEventListener("click", globalClick);
+// 03/04/2022
 function globalClick(e) {
-	if (result.classList.contains("active") && !e.target.classList.contains("match"))
+	// hide search result
+	if (result.classList.contains("active") && e.target.id !== name.id)
 		result.classList.remove("active");
 	
 }
