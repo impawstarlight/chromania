@@ -88,7 +88,7 @@ body {
 	border-radius: 14px;
 	border-right-width: 32px;
 	max-width: 100%;
-	min-width: 64px;
+	width: calc(10ch + 64px);
 }
 
 /* Search icon 31/03/2022 */
@@ -189,24 +189,27 @@ body {
 .box {
 	min-height: 40px;
 	border-radius: 20px;
-	transition: background 0.2s;
+	transition: background 0.2s, color 0.2s;
 }
 
 .box.given {
 	position: relative;
 	width: 100%;
 	background: var(--given);
+	color: var(--match);
+	text-align: center;
+	font-size: 24px;
+	line-height: 40px !important;
+	padding-right: 50%;
 }
 
 .box.match {
 	position: absolute;
+	top: 0;
 	right: 0;
 	width: calc(50% + 10px);
 	background: var(--match);
 	color: var(--given);
-	text-align: center;
-	font-size: 24px;
-	line-height: 40px !important;
 }
 
 /* re: hex & icons 02-04-2022 */
@@ -277,10 +280,12 @@ svg, svg * {
 	position: fixed;
 	width: 100%;
 	height: 216px;
+	max-height: calc(100vh - 120px);
 	padding: 0 20px;
 	background-image: var(--settings-grad);
 	background-size: 100% 400%;
 	background-position: 0 0%;
+	box-shadow: 0 0 4px var(--shadow);
 	overflow: auto;
 	font-size: 18px;
 	transition: background-position 0.6s, height 0.3s;
