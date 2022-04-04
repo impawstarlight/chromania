@@ -205,7 +205,7 @@ function update(str) {
 	// timeout to optimize slider
 	tmo = setTimeout(updateName, 0);
 	clearTimeout(this.t);
-	this.t = setTimeout(updateSliderGrad, 0);
+	this.t = setTimeout(updateSliderGrad, 20);
 }
 
 
