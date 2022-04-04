@@ -27,10 +27,6 @@ Let's see how it goes
 
 # User Interface
 
-<style> #images img { max-width: 100%; } </style>
-
-<div id="images">
-
 ![Hints](images/hint.webp)
 
 Everything is pretty much intuitive, except a few
@@ -49,7 +45,7 @@ things...
 ![Delta E](images/delta.webp)
 
 - The number you may see inside the match color block is
-the [color difference](DeltaE200) between the input & match.
+the [color difference](https://en.m.wikipedia.org/wiki/Color_difference#CIEDE2000) between the input & match.
 You may not see it clearly when the difference is small.
 
 - You can use Regular Expression in the search box
@@ -64,10 +60,10 @@ gamut clipping happens (RGB values are out of gamut/range)
 - Geek mode: The missing parts of the slider
 background strip are out of gamut colors that can't
 be shown in RGB colorspace.
--The bottom strip shows
+- The bottom strip shows
 estimated colors in those places by clamping RGB
 values within range.
--The top strip shows the estimated
+- The top strip shows the estimated
 colors with adjusted transparency indicating the extent of
 gamut clipping, that is, the more out of range, the
 more faint colors.
@@ -76,7 +72,6 @@ more faint colors.
 
 ![All colorspaces](images/all.webp)
 
-</div>
 ## Credits
 
 ***Inspired from***\
