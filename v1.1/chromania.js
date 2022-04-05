@@ -416,6 +416,8 @@ function settingsChange(e, t) {
 		case 1:
 			live = !live;
 			inpanel.classList.toggle("live");
+			let n2 = document.querySelector(".settings-checkbox.n2");
+			n2.disabled = !n2.disabled;
 			if (live)
 				updateSliderGrad();
 			break;
