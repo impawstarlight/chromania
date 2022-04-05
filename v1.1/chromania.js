@@ -75,6 +75,7 @@ window.onload = () => {
 	name.autoWidth = function() { this.style.width = "calc("+this.value.length+"ch + 64px)"; }
 	name.addEventListener("input", nameSearch);
 	window.addEventListener("click", globalClick);
+	result.addEventListener("transitionend", clearResult);
 	
 	// random color
 	setColor();
@@ -188,9 +189,6 @@ function update(str) {
 	
 	// rearranging update sequence - 04/04/2022
 	
-	/*if (live)
-		updateSliderGrad();*/
-	
 	// set color
 	rgb = val.slice(0, 3);
 	let clamped_rgb = Cc.crgb(rgb);
@@ -239,7 +237,7 @@ function updateSliderGrad() {
 // 26/03/2022
 function livegradcie() {
 	const {max, min, floor} = Math;
-	const D = 5;
+	const D = 1;
 	const L = [];
 	
 	for (let i = 9; i < 24; i++) {
@@ -461,7 +459,7 @@ function nameSearch() {
 		let dark = c[2][0] < 45 ? "darker" :
 		           c[2][0] < 70 ? "dark" :
 		           c[2][0] < 85 ? "light" : "lighter";
-		ih += `<div class="${dark}" style="background: ${c[1]}" onclick='setColor("${c[1]}"); result.innerHTML = "";'>${c[0]}<span>${c[1]}</span></div>\n`;
+		ih += `<div class="${dark}" style="background: ${c[1]}" onclick='setColor("${c[1]}");'>${c[0]}<span>${c[1]}</span></div>\n`;
 	}
 	
 	result.innerHTML = ih;
@@ -477,19 +475,26 @@ function nearbyColors(e) {
 			result.classList.remove("active");
 			return;
 		}
-		let A = Cc.near(hex[0].value, 10);
-		A.sort((a, b) => a[3]-b[3]);
+		let A = Cc.near(hex[0].value, 15);
+		A.sort((a, b) => (a[3]-b[3]));
+		A = A.slice(0, 100);
 		let ih = "";
 		for (let c of A) {
 			let dark = c[2][0] < 45 ? "darker" :
 			           c[2][0] < 70 ? "dark" :
 			           c[2][0] < 85 ? "light" : "lighter";
-			ih += `<div class="${dark}" data-delta="${Math.round(c[3]*100)/100}" style="--match: ${c[1]}" onclick='setColor("${c[1]}"); result.innerHTML = "";'>${c[0]}<span>${c[1]}</span></div>\n`;
+			ih += `<div class="${dark}" data-delta="${Math.round(c[3]*100)/100}" style="--match: ${c[1]}" onclick='setColor("${c[1]}");'>${c[0]}<span>${c[1]}</span></div>\n`;
 		}
 		result.innerHTML = ih;
 		result.classList.add("active");
 	} else
 		setColor();
+}
+
+// 05/04/2022
+function clearResult() {
+	if (!result.classList.contains("active"))
+		result.innerHTML = "";
 }
 
 // 03/04/2022
