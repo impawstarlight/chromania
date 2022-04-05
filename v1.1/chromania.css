@@ -325,6 +325,7 @@ svg, svg * {
 	position: absolute;
 	top: 8px;
 	right: 8px;
+	accent-color: var(--match);
 }
 
 /* Input section */
