@@ -322,8 +322,8 @@ function livegradcie() {
 		}
 		
 		sld[i].style.backgroundImage = GR;
-		if (cl[2] === "h" && cl[1].match(/lch/))
-			hueels.style.setProperty("--"+cl[1], (GR+"").replace(/linear/g, "conic").replace(/to right, /g, ""));
+		//if (cl[2] === "h" && cl[1].match(/lch/))
+			//hueels.style.setProperty("--"+cl[1], (GR+"").replace(/linear/g, "conic").replace(/to right, /g, ""));
 	}
 	
 	//console.timeEnd("live");
