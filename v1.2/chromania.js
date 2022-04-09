@@ -206,8 +206,8 @@ function update(str) {
 	updateName();
 	updateInps(str); // 09/04/2022
 	if (live)
-		//tmo = setTimeout(updateSliderGrad, 0);
-		updateSliderGrad();
+		tmo = setTimeout(updateSliderGrad, 0);
+		//updateSliderGrad();
 	
 	console.timeEnd("inps");
 }
