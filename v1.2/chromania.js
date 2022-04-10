@@ -8,7 +8,7 @@ const
 	gid = str => document.getElementById(str) 
 	gcl = str => document.getElementsByClassName(str);
 
-let outpanel, name, result, box, hex, inpanel, inp, sld;
+let outpanel, name, result, box, hex, settings, inpanel, inp, sld;
 let val = []; // array holding all color space values for the current color
 
 let _ = [
@@ -37,6 +37,7 @@ window.onload = () => {
 	outpanel = gid("output-panel");
 	name = gid("color-name");
 	result = gid("search-result");
+	settings = gid("settings");
 	
 	box = gcl("box");
 	hex = gcl("hex");
@@ -230,6 +231,7 @@ function updateColors() {
 	
 	outpanel.style.setProperty("--given", color);
 	outpanel.style.setProperty("--match", match[1]);
+	settings.style.setProperty("--match", match[1]);
 	
 	let uh = document.querySelectorAll(".colorspace:not(.collapse)");
 	for (let br of uh)
