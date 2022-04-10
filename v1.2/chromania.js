@@ -1,12 +1,14 @@
+// TODO: allow invalid input ranges
+
 let live = false, geek = false;
-let tmo; // timeout handle for updateOutput...
 let clipf = Cc.chromaClip;
+let curInp;
 
 const
 	gid = str => document.getElementById(str) 
 	gcl = str => document.getElementsByClassName(str);
 
-let name, result, box, hex, inpanel, inp, btn, sld, dss;
+let outpanel, name, result, box, hex, inpanel, inp, sld;
 let val = []; // array holding all color space values for the current color
 
 let _ = [
@@ -32,14 +34,14 @@ let data = { // bounds for colorspace components
 window.onload = () => {
 	createInputPanel();
 	
+	outpanel = gid("output-panel");
 	name = gid("color-name");
 	result = gid("search-result");
+	
 	box = gcl("box");
 	hex = gcl("hex");
 	inp = gcl("numinp");
-	btn = gcl("capbtn");
 	sld = gcl("slider");
-	dss = gid("dss").sheet.cssRules[0].style;
 	
 	// copy hex
 	for (let x of gcl("copy-icon"))
@@ -50,8 +52,7 @@ window.onload = () => {
 	for (let x of cn)
 		x.addEventListener("click", function() {
 			this.parentElement.classList.toggle("collapse");
-			updateInps();
-			if (live) livegradcie();
+			update();
 		});
 	
 	// settings event
@@ -64,6 +65,8 @@ window.onload = () => {
 	box[0].addEventListener("click", nearbyColors);
 	hex[0].addEventListener("input", hexInput);
 	hex[1].addEventListener("click", hexClick);
+	
+	let btn = gcl("capbtn");
 	for (let i = 0; i < inp.length; i++) {
 		inp[i].addEventListener("input", numInput);
 		btn[i].addEventListener("click", btnInput);
@@ -83,7 +86,7 @@ window.onload = () => {
 	// initial preference
 	setTimeout(() => cn[8].click(),  600);
 	setTimeout(() => sc[0].click(), 1200);
-	setTimeout(() => cn[8].click(), 1800);
+	//setTimeout(() => cn[8].click(), 1800);
 	setTimeout(() => cn[9].click(), 1800);
 	setTimeout(() => sc[1].click(), 2400);
 	
@@ -141,7 +144,13 @@ function setColor(color) {
 
 
 function update(str) {
-	console.time("inps");
+	if (typeof str !== "string")
+		str = curInp;
+	else
+		curInp = str;
+	
+	console.time("val");
+	
 	let method = str+"2rgb";
 	let index  = 0;
 	
@@ -178,75 +187,82 @@ function update(str) {
 		...oklab,
 		...oklch
 	];
-	//console.timeLog("inps");
 	
 	// round to 1 digit after decimal point
 	for (let i = 3; i < val.length; i++)
 		val[i] = Math.round(val[i]*10)/10;
 	
-	//console.timeLog("inps");
-	// rearranging update sequence - 04/04/2022
+	//console.timeLog("val");
 	
-	// set color
-	rgb = val.slice(0, 3);
-	let color;
+	// rearranging update sequence - 04/04/2022
+	// again - 10/04/2022
+	updateInps();
+	updateColors();
+	if (live)
+		updateSliderGrad();
+	
+	console.timeEnd("val");
+}
+
+function updateColors() {
+	//console.time("colors");
+	
+	let rgb = val.slice(0, 3),
+		oklch = val.slice(27, 30),
+		color;
+	
 	if (Math.max(...rgb, 255) - Math.min(...rgb, 0) > 255) {
 		rgb = Cc.drgb(clipf(oklch));
 		rgb.push(true);
 	}
 	
 	color = Cc.rgb2hex(rgb);
-	dss.setProperty("--given", color);
-	//dss.setProperty("--match", color);
-	hex[0].value = color + (rgb[3] ? "*" : "");
-	
-	// timeout to optimize slider
-	//tmo = setTimeout(updateName, 0);
-	//console.timeEnd("inps");
-	updateName();
-	updateInps(str); // 09/04/2022
-	if (live)
-		tmo = setTimeout(updateSliderGrad, 0);
-		//updateSliderGrad();
-	
-	console.timeEnd("inps");
-}
-
-function updateInps(str) {
-	// set input element values
-	for (let i = 0; i < val.length; i++)
-		if (sld[i].parentElement.parentElement.classList.contains("collapse"))
-			i += 2; // skip if collapsed
-		else if (str === sld[i].classList[1])
-			val[i] = +inp[i].value; // avoid setting the active input/slider, to avoid floating point fluctuation
-		else // normal
-			inp[i].value = sld[i].value = val[i];
-	
-}
-
-function updateName() {
 	//console.time("name");
-	let color = hex[0].value;
 	let match = Cc.name(color);
-	//console.timeLog("name");
-	hex[1].innerHTML = match[1];
+	//console.timeEnd("name");
+	
 	name.value = match[0];
 	name.autoWidth();
 	
-	// 07/08/2020
-	dss.setProperty("--match", match[1]);
+	// setting individually for perfomance since
+	// changing color in body or a heavy container
+	// element creates lag because of cascading
 	
-	// 29/07/2020
+	outpanel.style.setProperty("--given", color);
+	outpanel.style.setProperty("--match", match[1]);
+	
+	let uh = document.querySelectorAll(".colorspace:not(.collapse)");
+	for (let br of uh)
+ 		br.style.setProperty("--given", color);
+	
+	// set hex, asterisk for out of gamut
+	hex[0].value = color + (rgb[3] ? "*" : "");
+	hex[1].innerHTML = match[1];
+	
+	// delta e
 	box[1].innerHTML = Math.round(match[2]*100)/100;
 	
-	// 09/07/2020
+	// hightlight exact match
 	if (color === match[1])
 		hex[1].parentElement.style.opacity = "0.5";
 	else
 		hex[1].parentElement.style.opacity = "";
 	
-	//console.timeEnd("name");
+	//console.timeEnd("colors");
 }
+
+function updateInps() {
+	//console.time("inps");
+	for (let i = 0; i < val.length; i++)
+		if (sld[i].parentElement.parentElement.classList.contains("collapse"))
+			i += 2; // skip collapsed colorspaces
+		else if (curInp === sld[i].classList[1])
+			val[i] = +inp[i].value; // don't change the current colorspace values, to avoid floating point fluctuation
+		else // normal
+			inp[i].value = sld[i].value = val[i];
+	//console.timeEnd("inps");
+}
+
 
 // 04/04/2022
 function updateSliderGrad() {
@@ -282,21 +298,16 @@ function livegradcie() {
 		
 		let lcl =  Lcl[cl[1]];
 		// use lab/luv/oklab l gradient in lch modes if available
-		if (cl[2] === "l" && !imdex && L[lcl]) {
+		if (cl[2] === "l" && !imdex && L[lcl])
 			GR = L[lcl];
-		} else {
+		else {
 			// generate gradient
 			for (let x = b[0]; x < b[1]; x += D) {
 				arr[imdex] = x;
 				let rgb = clipf(Cc[method](arr));
 				let a = rgb.pop();
 				rgb = Cc.drgb(rgb);
-				/*let range = max(1, ...rgb) - min(0, ...rgb);
-				//rgb2 = Cc.drgb(Cc.chromaClipLUT(rgb));
-				//rgb3 = Cc.drgb(Cc.projectLcus(rgb));
-				if (range > 1) // gamut clipping
-					rgb = clipf(rgb);
-				*/
+				
 				if (geek && a < 1) {
 					A[0].push(Cc.rgb2hex(rgb));
 					//A[1].push(Cc.rgb2hex(rgb3));
@@ -318,15 +329,9 @@ function livegradcie() {
 			
 			if (cl[2] === "l" && !imdex)
 				L[cl[1]] = GR;
-			
 		}
-		
 		sld[i].style.backgroundImage = GR;
-		//if (cl[2] === "h" && cl[1].match(/lch/))
-			//hueels.style.setProperty("--"+cl[1], (GR+"").replace(/linear/g, "conic").replace(/to right, /g, ""));
 	}
-	
-	//console.timeEnd("live");
 }
 
 // 27/03/2022
@@ -374,12 +379,9 @@ function livegradrgb() {
 		H.push(Cc.nrgb2safehex(Cc.dhsv2rgb(arr)));
 	}
 	
-	//hueels.style.setProperty("--hsv", `conic-gradient(${H})`);
-	
 	H = `none, linear-gradient(to right, ${H})`;
 	sld[3].style.backgroundImage = H;
 	sld[6].style.backgroundImage = H;
-	
 	
 }
 
@@ -440,15 +442,16 @@ function sliderInput() {
 	let i = +this.parentElement.classList[1].slice(1);
 	inp[i].value = val[i] = +this.value;
 	
-	// timeout to prevent excessive continuous computational overload
-	//clearTimeout(this.t);
-	//this.t = setTimeout(update, 0, sld[i].classList[1]);
-	clearTimeout(tmo);
-	update(sld[i].classList[1]);
+	curInp = sld[i].classList[1];
+	
+	//update();
+	cancelAnimationFrame(this.r);
+	this.r = requestAnimationFrame(update);
 }
 
+
 // 28/03/2022
-function settingsChange(e, t) {
+function settingsChange(e) {
 	let x = +e.target.classList[1].slice(1);
 	switch (x) {
 		case 0:
