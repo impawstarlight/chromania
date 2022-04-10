@@ -289,7 +289,7 @@ function livegradcie() {
 		}
 		let cl = sld[i].classList;
 		let b = data[cl[1]][cl[2]]; // boundary values
-		let D = (b[1]-b[0])/200.001; // step, and .001 to avoid avoiding the last value bcz of floating point shit
+		let D = (b[1]-b[0])/100.001; // step, and .001 to avoid avoiding the last value bcz of floating point shit
 		let method = cl[1]+"2oklch";
 		
 		let imdex = i%3; // noimce, position of current slider in the group
