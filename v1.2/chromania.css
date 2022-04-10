@@ -5,6 +5,8 @@
 }
 
 body {
+	--given: #777;
+	--match: #888;
 	--bg-1: #282828;
 	--bg-2: #333;
 	--bg-3: #444;
@@ -67,8 +69,7 @@ body {
 	align-items: center;
 	justify-content: unsafe top;
 	background: var(--bg-1);
-	transition-duration: 0.5s;
-	transition-property: background, color;
+	transition: background 0.5s, color 0.5s;
 }
 
 #output-panel > * {
@@ -77,7 +78,7 @@ body {
 
 #output-panel :not(.box) {
 	transition-duration: 0.5s;
-	transition-property: background, color, border-color, width, text-shadow, fill, opacity;
+	transition-property: background, color, border-color, width, text-shadow, opacity;
 }
 
 #color-name {
@@ -166,14 +167,7 @@ body {
 	right: 80px;
 	width: 40px;
 	height: 32px;
-	background: linear-gradient(to top right, var(--given) 25%, transparent 75%);
-	/*background-image: conic-gradient(transparent, var(--given));
-		/*linear-gradient(135deg, var(--given), var(--match)), 
-		linear-gradient(315deg, var(--given), var(--match));
-		
-	background-size: 50% 100%;
-	background-repeat: no-repeat;
-	background-position-x: 0, 20px;*/
+	;;background: linear-gradient(to top right, var(--given) 25%, transparent 75%);
 }
 
 #search-result > div[data-delta]::after {
@@ -192,7 +186,6 @@ body {
 .box {
 	min-height: 40px;
 	border-radius: 20px;
-	transition: background 0.2s, color 0.2s;
 }
 
 .box.given {
@@ -257,10 +250,6 @@ body {
 
 /* Copy & settings icon 02-04-2022 */
 
-svg, svg * {
-	transition: fill 0.2s !important;
-}
-
 .copy-icon.given {
 	right: none;
 	left: 6px;
@@ -271,6 +260,7 @@ svg, svg * {
 #settings-icon {
 	fill: var(--text-3);
 	margin: 2px 0;
+	transition: fill 0.2s !important;
 }
 
 #settings-icon.active {
@@ -357,11 +347,11 @@ svg, svg * {
 
 .colorspace.collapse {
 	height: 16px !important;
-	width: 6ch;
+	width: 6.5ch;
 }
 
 .lchab.collapse, .lchuv.collapse, .oklab.collapse, .oklch.collapse {
-	width: 8ch;
+	width: 9ch;
 }
 
 .colorspace .container {
@@ -442,7 +432,7 @@ svg, svg * {
 .capinp::-webkit-inner-spin-button {
 	display: none;
 	/* -webkit-appearance: none;
-	-margin: 0; */
+	margin: 0; */
 }
 
 .capbtn {
@@ -504,7 +494,7 @@ input[type=range]::-webkit-slider-thumb {
 	border-radius: 50%;
 	background: var(--slider-thumb);
 	margin-top: -10px;
-	transition: background 0.3s, border 0.5s;
+	transition: border-color 0.5s;
 }
 
 input[type=range]::-moz-range-thumb {
@@ -515,7 +505,7 @@ input[type=range]::-moz-range-thumb {
 	border-radius: 50%;
 	background: var(--slider-thumb);
 	margin-top: -10px;
-	transition: background 0.3s, border 0.5s;
+	transition: border-color 0.5s;
 }
 
 /* Live slider - 26/03/2022 */
@@ -572,4 +562,3 @@ input[type=range]::-moz-range-thumb {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
-
