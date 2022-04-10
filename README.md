@@ -3,7 +3,12 @@ A collection of color tools\
 [Click here](https://impawstarlight.github.io/chromania)
 for live demo
 
-## What's new: v1.1 - 4 April 2022
+## What's new:
+### v1.2 - 10 April 2022
+- New colorspace - OKLAB (& OKLCH)
+- Proper gamut mapping - More accurate estimation for out of gamut colors
+- Slider optimization - Say goodbye to lag
+### v1.1 - 4 April 2022
 - Nearby/Similar colors - Click the match color box
 - Slider optimization - Less lag hopefully
 - User interace explained - [See below](#user-interface)
