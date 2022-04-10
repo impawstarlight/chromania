@@ -110,19 +110,20 @@ function createInputPanel() {
 `;
 		for (let c in data[d]) { // c = component
 			let b = data[d][c];  // b = bounds
+			let step = (c.match(/[abc]/) && d.match(/^ok/)) ? 0.2 : 1;
 			iHTML += `
 				<div class="container n${i++}">
 					<div class="cap-wrapper">
 						<div class="capsule capinp">
 							<div class="cap-left">${c}</div>
-							<input class="cap-right numinp" type="number" min="${b[0]}" max="${b[1]}" step="${d == "rgb" ? 1 : 0.1}">
+							<input class="cap-right numinp" type="number" min="${b[0]}" max="${b[1]}" step="${d == "rgb" ? 1 : 0.01}">
 						</div>
-						<div class="capsule capbtn">
+						<div class="capsule capbtn" data-step="${step}">
 							<div class="cap-left">-</div>
 							<div class="cap-right">+</div>
 						</div>
 					</div>
-					<input class="slider ${d} ${c}" type="range" min="${b[0]}" max="${b[1]}" step="1">
+					<input class="slider ${d} ${c}" type="range" min="${b[0]}" max="${b[1]}" step="${step}">
 				</div>
 `;
 		}
@@ -288,7 +289,7 @@ function livegradcie() {
 		}
 		let cl = sld[i].classList;
 		let b = data[cl[1]][cl[2]]; // boundary values
-		let D = (b[1]-b[0])/50.001; // step, and .001 to avoid avoiding the last value bcz of floating point shit
+		let D = (b[1]-b[0])/200.001; // step, and .001 to avoid avoiding the last value bcz of floating point shit
 		let method = cl[1]+"2oklch";
 		
 		let imdex = i%3; // noimce, position of current slider in the group
@@ -431,7 +432,9 @@ function numInput() {
 function btnInput(e) {
 	let i = +this.parentElement.parentElement.classList[1].slice(1);
 	let x = e.target.className == "cap-right" ? 1 : -1;
-	inp[i].value = sld[i].value = val[i] += x;
+	x *= +this.dataset.step;
+	val[i] += x;
+	inp[i].value = sld[i].value = val[i] = Math.round(val[i]*10)/10;
 	
 	if (!inp[i].reportValidity())
 		return;
