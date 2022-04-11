@@ -467,12 +467,8 @@ const Cc = (function() {
 		oklab2oklch: lab2lch,
 		oklch2oklab: lch2lab,
 		
-		dist,
-		dist2,
-		deltaE76: dist,
-		deltaE94,
+		// color difference
 		deltaE00,
-		deltaE00_old,
 		
 		// Shortcuts for Chromania
 		rgb2dhsv: (rgb) => dhsx(rgb2hsv(rgb)),
