@@ -575,10 +575,6 @@ const Cc = (function() {
 		chromaClipBin,
 		chromaClipLUT,
 		chromaClip,
-		projectLcusp,
-		projectLcus,
-		projectL,
-		adaptiveL
 	};
 	
 	
@@ -746,10 +742,10 @@ const Cc = (function() {
 	
 	// gamut mapping funcs
 	
-	function rgbClip(rgb, denormalized) {
+	function rgbClip(rgb, isDenormalized) {
 		rgb = rgb.slice();
 		let n = 1;
-		if (denormalized)
+		if (isDenormalized)
 			n = 255;
 		
 		for (let i = 0; i < 3; i++)
