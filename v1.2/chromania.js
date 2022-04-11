@@ -1,7 +1,7 @@
 // TODO: allow invalid input ranges
 
 let live = false, geek = false;
-let clipf = Cc.chromaClip;
+const clipf = Cc.chromaClip;
 let curInp;
 
 const
@@ -49,8 +49,7 @@ window.onload = () => {
 		x.addEventListener("click", copyHex);
 	
 	// toggle colorspace visibility
-	let cn = gcl("colorspace-name");
-	for (let x of cn)
+	for (let x of gcl("colorspace-name"))
 		x.addEventListener("click", function() {
 			this.parentElement.classList.toggle("collapse");
 			update();
@@ -58,8 +57,7 @@ window.onload = () => {
 	
 	// settings event
 	gid("settings-icon").addEventListener("click", function() { gid("settings").classList.toggle("collapse"); this.classList.toggle("active"); });
-	let sc = gcl("settings-checkbox");
-	for (let x of sc)
+	for (let x of gcl("settings-checkbox"))
 		x.addEventListener("change", settingsChange);
 	
 	// more events
@@ -81,21 +79,74 @@ window.onload = () => {
 	window.addEventListener("click", globalClick);
 	result.addEventListener("transitionend", clearResult);
 	
-	// random color
-	setColor();
-	
-	// initial preference
-	setTimeout(() => cn[8].click(),  600);
-	setTimeout(() => sc[0].click(), 1200);
-	//setTimeout(() => cn[8].click(), 1800);
-	setTimeout(() => cn[9].click(), 1800);
-	setTimeout(() => sc[1].click(), 2400);
-	
+	setPreferences();
 	
 	if (getComputedStyle(gid("ddetect")).backgroundColor !== "rgb(255, 255, 255)")
 		alert("The colors might be displayed incorrectly!\nDisable dark theme extension or similar stuff");
 }
 
+
+function setPreferences() {
+	let SVD = localStorage.getItem("impawstarlight-chromania-saved-data");
+	let spaces, settings;
+	
+	if (SVD) {
+		// load preferences
+		SVD = JSON.parse(SVD);
+		setColor(SVD.inpcol);
+		//{spaces, settings} = SVD;
+		spaces = SVD.spaces;
+		settings = SVD.settings;
+	} else {
+		// random color
+		setColor();
+		// initial preferences
+		spaces = [8,9];
+		settings = [0,1,2];
+	}
+	
+	// apply preferences
+	let l = Math.max(spaces.length, settings.length);
+	let j = 1;
+	let cn = gcl("colorspace-name");
+	let sc = gcl("settings-checkbox");
+	
+	spaces.reverse();
+	for (let i = 0; i < l; i++) {
+		if (spaces[i] !== undefined)
+			setTimeout(() => cn[spaces[i]].click(), 500*j++);
+		if (settings[i] !== undefined)
+			setTimeout(() => sc[settings[i]].click(), 500*j++);
+	}
+}
+
+
+window.addEventListener("visibilitychange", () => {
+	// save preferences
+	if (document.visibilityState === "hidden") {
+		let SVD = {
+			spaces: [],
+			settings: [],
+			palette: [],
+			inpcol: hex[0].value
+		};
+		
+		let cs = gcl("colorspace");
+		for (let i = 0; i < cs.length; i++)
+			if (!cs[i].classList.contains("collapse"))
+				SVD.spaces.push(i);
+		
+		let sc = gcl("settings-checkbox");
+		for (let i = 0; i < sc.length; i++)
+			if (sc[i].checked)
+				SVD.settings.push(i);
+		
+		SVD = JSON.stringify(SVD);
+		localStorage.setItem("impawstarlight-chromania-saved-data",  SVD);
+		lg(SVD);
+	}
+	
+});
 
 
 function createInputPanel() {
