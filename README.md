@@ -5,7 +5,7 @@ for live demo
 
 ## What's new:
 ### v1.2 - 10 April 2022
-- New colorspace - OKLAB (& OKLCH)
+- New colorspace - [OKLAB](https://bottosson.github.io/posts/oklab) (& OKLCH)
 - Proper gamut mapping - More accurate estimation for out of gamut colors
 - Slider optimization - Say goodbye to lag
 ### v1.1 - 4 April 2022
