@@ -310,77 +310,6 @@ const Cc = (function() {
 	}
 	
 	
-	function dist(col1, col2) {
-		let [f,g,h] = col1,
-			[i,j,k] = col2;
-		
-		return sqrt((i-f)**2 + (j-g)**2 + (k-h)**2);
-	}
-	
-	function dist2(col1, col2) {
-		let [f,g,h] = col1,
-			[i,j,k] = col2;
-		
-		return (i-f)**2 + (j-g)**2 + (k-h)**2;
-	}
-	
-	function deltaE94(lab1, lab2) {
-		let [L1,a1,b1] = lab1,
-			[L2,a2,b2] = lab2;
-		let
-			dL = L1-L2,
-			C1 = sqrt(a1**2 + b1**2),
-			C2 = sqrt(a2**2 + b2**2),
-			dC = C1-C2,
-			dH = sqrt((a1-a2)**2 + (b1-b2)**2 - dC**2),
-			Sc = 1.045*C1,
-			Sh = 1.015*C1;
-		
-		return sqrt(dL**2 + (dC/Sc)**2 + (dH/Sh)**2);
-	}
-	
-	function deltaE00_old(lab1, lab2) {
-		let [L1,a1,b1] = lab1,
-			[L2,a2,b2] = lab2;
-		let
-			_L_ = (L1+L2)/2,
-			C1  = sqrt(a1**2 + b1**2),
-			C2  = sqrt(a2**2 + b2**2),
-			C_  = (C1+C2)/2,
-			G   = (1 - sqrt(C_**7 / (C_**7 + 25**7))) / 2,
-			_a1 = a1*(1+G),
-			_a2 = a2*(1+G),
-			_C1 = sqrt(_a1**2 + b1**2),
-			_C2 = sqrt(_a2**2 + b2**2),
-			_C_ = (_C1+_C2)/2,
-			_h1 = atan2(b1, _a1)*deg,
-			_h2 = atan2(b2, _a2)*deg;
-		
-		_h1  += _h1 < 0 ? 360 : 0;
-		_h2  += _h2 < 0 ? 360 : 0;
-		
-		let _H_ = (_h1+_h2)/2;
-		_H_    += abs(_h1-_h2) > 180 ? 180 : 0;
-		
-		let
-			T   = 1 - 0.17*cos((_H_-30)/deg) + 0.24*cos((2*_H_)/deg) + 0.32*cos((3*_H_+6)/deg) - 0.2*cos((4*_H_-63)/deg),
-			_dh = _h2 - _h1;
-		_dh  += abs(_dh) <= 180 ? 0 : abs(_dh) > 180 && _h2 <= _h1 ? 360 : -360;
-		
-		let
-			_dL = L2 - L1,
-			_dC = _C2 - _C1,
-			_dH = 2*sqrt(_C1*_C2)*sin((_dh/2)/deg),
-			Sl  = 1 + (0.015*(_L_-50)**2) / sqrt(20+(_L_-50)**2),
-			Sc  = 1 + 0.045*_C_,
-			Sh  = 1 + 0.015*_C_*T,
-			dth = 30*exp(-(((_H_-275)/25)**2)),
-			Rc  = 2 * sqrt(_C_**7 / (_C_**7 + 25**7)),
-			RT  = -Rc*sin((2*dth)/deg);
-		
-		return sqrt((_dL/Sl)**2 + (_dC/Sc)**2 + (_dH/Sh)**2 + RT*_dC*_dH/(Sc*Sh)); 
-	}
-	
 	// rewrite 05/04/2022
 	function deltaE00(lab1, lab2) {
 		let [l1,a1,b1] = lab1,
@@ -563,17 +492,12 @@ const Cc = (function() {
 		// ntc
 		initNames,
 		name,
-		name0,
 		name_compact,
 		name_full,
 		near,
-		far,
 		
 		// gamut mapping
 		rgbClip,
-		maxChroma,
-		chromaClipBin,
-		chromaClipLUT,
 		chromaClip,
 	};
 	
@@ -649,63 +573,6 @@ const Cc = (function() {
 	}
 	
 	
-	function name0(color) {
-		color = color.toLowerCase();
-		let lab1 = _.rgb2lab(nrgb(hex2rgb(color)));
-		let nd = -1, df = 999;
-		
-		for (let i = 0; i < colors.length; i++) {
-			let lab2 = colors[i][2];
-			let d = deltaE00(lab1, lab2);
-			if (d < df) {
-				df = d;
-				nd = i;
-			}
-		}
-		
-		return colors[nd].slice(0, 2).concat(df, nd);
-	}
-	
-	
-	function nameOptiRange() {
-		let Dd = [];
-		
-		for (let n = 0; n < 10000; n++) {
-			let lab1 = _.rgb2lab(nrgb(hex2rgb("#"+Math.random().toString(16).slice(-6))));
-			let df = 999;
-			let D;
-			
-			for (let i = 0; i < colors.length; i++) {
-				//if (i === n) continue;
-				let lab2 = colors[i][2];
-				let ll = lab1[0] - lab2[0],
-					aa = lab1[1] - lab2[1],
-					bb = lab1[2] - lab2[2];
-				
-				if  (abs(ll) < 10 &&
-				     abs(aa) < 25 &&
-				     abs(bb) < 30) {
-					let d = deltaE00(lab1, lab2);
-					if (d < df) {
-						df = d;
-						D  = [ll,aa,bb]
-					}
-				}
-			}
-			Dd.push(D);
-		}
-		
-		Dd.sort((x, y) => y[0]-x[0]);
-		console.log(Dd[0]);
-		Dd.sort((x, y) => y[1]-x[1]);
-		console.log(Dd[0]);
-		Dd.sort((x, y) => y[2]-x[2]);
-		console.log(Dd[0]);
-		
-		return Dd;
-	}
-	
-	
 	function near(color, range) {
 		color = color.toLowerCase();
 		let lab1 = _.rgb2lab(nrgb(hex2rgb(color)));
@@ -720,25 +587,6 @@ const Cc = (function() {
 		
 		return arr;
 	}
-	
-	
-	function far(color, range, range2 = 100) {
-		color = color.toLowerCase();
-		let lab1 = _.rgb2lab(nrgb(hex2rgb(color)));
-		let arr = [];
-		range *= range;
-		range2 *= range2;
-		
-		for (let i = 0; i < colors.length; i++) {
-			let lab2 = colors[i][2];
-			let d = dist2(lab1, lab2);
-			if (d > range && d < range2)
-				arr.push(colors[i].concat(sqrt(d), i));
-		}
-		
-		return arr;
-	}
-	
 	
 	// gamut mapping funcs
 	
@@ -757,86 +605,6 @@ const Cc = (function() {
 		return rgb;
 	}
 	
-	function maxChroma(oklch) {
-		let [L,C,H] = oklch;
-		L = min(max(L, 0), 100);
-		let C0 = 0, C1 = 40.96;
-		
-		while (true) {
-			C = (C0+C1)/2;
-			rgb = Cc.oklch2rgb([L,C,H]);
-			range = Math.max(...rgb, 1) - Math.min(...rgb, 0);
-			//if (range < 1.00196) {
-				//if (range > 1) break;
-			if (range === 1) {
-				if (C-C0 <= 0.0101) break;
-				C0 = C;
-			} else
-				C1 = C;
-		}
-		
-		return [L,C,H];
-	}
-	
-	function chromaClipBin(rgb) {
-		let range = max(...rgb, 1) - min(...rgb, 0);
-		if (range <= 1.00196)
-			return rgb;
-		
-		let [L,C,H] = _.rgb2oklch(rgb);
-		L = min(max(L, 0), 100);
-		let C0 = 0, C1 = 51.2;
-		
-		while (true) {
-			C = (C0+C1)/2;
-			rgb = Cc.oklch2rgb([L,C,H]);
-			range = Math.max(...rgb, 1) - Math.min(...rgb, 0);
-			if (range < 1.00196) {
-				if (range > 1) break;
-				C0 = C;
-			} else
-				C1 = C;
-		}
-		
-		return rgb;
-	}
-	
-	function projectLokBin(lch, L0) {
-		let [L,C,H] = lch;
-		let C0 = 0;
-		let [L1,C1] = [L,C];
-		
-		this.c = 0;
-		while (true) {
-			L = (L0+L1)/2;
-			C = (C0+C1)/2;
-			rgb = Cc.oklch2rgb([L,C,H]);
-			range = Math.max(...rgb, 1) - Math.min(...rgb, 0);
-			if (range < 1.00196) {
-				if (range > 1) break;
-				[L0, C0] = [L, C];
-			} else
-				[L1, C1] = [L, C];
-			
-			this.c++
-		}
-		
-		return rgb;
-	}
-	
-	function chromaClipLUT(rgb) {
-		let range = max(...rgb, 1) - min(...rgb, 0);
-		if (range <= 1)
-			return rgb;
-		
-		let [L,C,H] = _.rgb2oklch(rgb);
-		let [Lm,Cm] = cuspLUT[round(2*H)];
-		let L0 = L < Lm ? 1 : 99;
-		C = Cm*(L-L0)/(Lm-L0);
-		
-		return Cc.rgbClip(Cc.oklch2rgb([L,C,H]));
-	}
-	
 	function chromaClip(lch) {
 		let [L,C,H] = lch;
 		let [Lm,Cm] = cuspLUT[round(2*H)];
@@ -849,57 +617,6 @@ const Cc = (function() {
 		else
 			a = 1;
 		return [...Cc.rgbClip(Cc.oklch2rgb([L,C,H])), a];
-	}
-	
-	function projectL(rgb, L0 = 50) {
-		let range = max(...rgb, 1) - min(...rgb, 0);
-		if (range <= 1)
-			return rgb;
-		
-		return projectLok(_.rgb2oklch(rgb), L0);
-	}
-	
-	function projectLok(lch, Lp) {
-		let [L,C,H] = lch;
-		let [Lm,Cm] = cuspLUT[round(2*H)];
-		let L0 = L < Lm ? 1 : 99;
-		C = (Lp-L0) / ((Lm-L0)/Cm - (L-Lp)/C);
-		return Cc.rgbClip(Cc.oklch2rgb([L,C,H]));
-	}
-	
-	function projectLcus(lch) {
-		let [L,C,H] = lch;
-		let [Lm,Cm] = cuspLUT[round(2*H)];
-		let L0 = L < Lm ? 1 : 99;
-		
-		let lmc = (Lm-L0)/Cm;
-		Cm =  (L-L0)/lmc;
-		if (C > Cm) {
-			C = (Lm-L0) / (lmc - (L-Lm)/C);
-			L = C*lmc + L0;
-		}
-		return Cc.rgbClip(Cc.oklch2rgb([L,C,H]));
-	}
-	
-	function projectLcusp(rgb) {
-		let range = max(...rgb, 1) - min(...rgb, 0);
-		if (range <= 1)
-			return rgb;
-		let [L,C,H] = _.rgb2oklch(rgb);
-		let [Lm,Cm] = cuspLUT[round(2*H)];
-		let L0 = L < Lm ? 1 : 99;
-		C = (Lm-L0) / ((Lm-L0)/Cm - (L-Lm)/C);
-		L = C*(Lm-L0)/Cm + L0;
-		return Cc.rgbClip(Cc.oklch2rgb([L,C,H]));
-	}
-	
-	function adaptiveL(rgb) {
-		let [L,C,H] = _.rgb2oklch(rgb);
-		let [Lm,Cm] = cuspLUT[round(2*H)];
-		let L0 = L < Lm ? 1 : 99;
-		;;let Lp = Math.tanh(L);
-		C = (Lp-L0) / ((Lm-L0)/Cm - (L-Lp)/C);
-		return Cc.rgbClip(Cc.oklch2rgb([L,C,H]));
 	}
 	
 	
