@@ -566,10 +566,9 @@ input[type=range]::-moz-range-thumb {
 /* palette */
 
 #palette {
-	min-height: 40px;
 	background: var(--bg-1);
 	text-align: center;
-	padding: 0 20px;
+	padding: 1px 20px;
 	transition: background 0.5s;
 }
 
