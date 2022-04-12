@@ -1,0 +1,600 @@
+-@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Condensed&display=swap");
+
+:root {
+	color-scheme: only light;
+}
+
+body {
+	--given: #777;
+	--match: #888;
+	--bg-1: #282828;
+	--bg-2: #333;
+	--bg-3: #444;
+	--text-1: #eee;
+	--text-2: #bbb;
+	--text-3: #777;
+	--slider-track: #666;
+	--slider-thumb: #ccc;
+	--live-thumb: #444;
+	--shadow: rgba(0,0,0,0.5);
+	--text-shadow: rgba(0,0,0,0.5);
+	--glow: rgba(255,255,255,0.25);
+	--settings-grad: linear-gradient(#333, #282828 25%, #ddd 75%, #eee);
+}
+
+body.light-theme {
+	--bg-1: #eee;
+	--bg-2: #ddd;
+	--bg-3: #ccc;
+	--text-1: #222;
+	--text-2: #555;
+	--text-3: #888;
+	--slider-track: #999;
+	--slider-thumb: #eee;
+	--live-thumb: #eee;
+	--shadow: rgba(0,0,0,0.25);
+	--text-shadow: transparent;
+	--glow: rgba(0,0,0,0.5);
+}
+
+body {
+	margin: 0;
+	padding: 120px 0;
+	color: var(--text-2);
+	background: var(--bg-2);
+	font: 16px "Ubuntu Condensed";
+	line-height: 1 !important;
+	transition: background 0.8s;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.outline * {
+	outline: 1px dashed lime;
+}
+
+/* Output section */
+
+#output-panel {
+	position: fixed;
+	z-index: 998;
+	top: 0;
+	width: 100%;
+	height: 120px;
+	padding: 0 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: unsafe top;
+	background: var(--bg-1);
+	transition: background 0.5s, color 0.5s;
+}
+
+#output-panel > * {
+	margin-top: 6px;
+}
+
+#output-panel :not(.box) {
+	transition-duration: 0.5s;
+	transition-property: background, color, border-color, width, text-shadow, opacity;
+}
+
+#color-name {
+	display: inline-block;
+	color: var(--text-1);
+	background: none;
+	text-align: center;
+	background: var(--bg-3);
+	line-height: 26px !important;
+	padding-left: 4px;
+	border: 1px solid var(--bg-2);
+	border-radius: 14px;
+	border-right-width: 32px;
+	max-width: 100%;
+	width: calc(10ch + 64px);
+}
+
+/* Search icon 31/03/2022 */
+
+#search-cont {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	max-width: 100%;
+}
+
+#search-icon, .copy-icon {
+	position: absolute;
+	top: 2px;
+	right: 6px;
+	fill: var(--match);
+	filter: drop-shadow(0 0 1px var(--shadow));
+}
+
+/* Search result - 30/03/2022 */
+
+#search-result {
+	position: absolute;
+	z-index: 999;
+	max-height: 0;
+	width: calc(100vw - 40px);
+	margin-top: 81px;
+	box-shadow: 0 2px 4px var(--shadow);
+	overflow: auto;
+	border-radius: 16px;
+	transition: max-height 0.2s !important;
+}
+
+#search-result.active {
+	max-height: calc(80vh - 80px);
+}
+
+#search-result > div {
+	position: relative;
+	background: var(--match);
+	padding: 8px 12px;
+}
+
+#search-result > div.lighter {
+	color: rgba(0,0,0,0.5);
+}
+#search-result > div.light {
+	color: rgba(0,0,0,0.6);
+}
+#search-result > div.dark {
+	color: rgba(255,255,255,0.8);
+}
+#search-result > div.darker {
+	color: rgba(255,255,255,0.7);
+}
+
+#search-result > div > span {
+	position: absolute;
+	right: 12px;
+	text-transform: uppercase;
+	opacity: 0.6;
+}
+
+/* nearby colors delta value - 01/04/2022 */
+
+#search-result > div[data-delta]::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 80px;
+	width: 40px;
+	height: 32px;
+	;;background: linear-gradient(to top right, var(--given) 25%, transparent 75%);
+}
+
+#search-result > div[data-delta]::after {
+	content: attr(data-delta);
+	position: absolute;
+	top: 0;
+	right: 80px;
+	width: 40px;
+	line-height: 32px;
+	text-align: center;
+	opacity: 0.5;
+}
+
+/* Color box & hex */
+
+.box {
+	min-height: 40px;
+	border-radius: 20px;
+}
+
+.box.given {
+	position: relative;
+	width: 100%;
+	background: var(--given);
+	color: var(--match);
+	text-align: center;
+	font-size: 24px;
+	line-height: 40px !important;
+	padding-right: 50%;
+}
+
+.box.match {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: calc(50% + 10px);
+	background: var(--match);
+	color: var(--given);
+}
+
+/* re: hex & icons 02-04-2022 */
+
+#hex-container {
+	width: 100%;
+	display: flex;
+	justify-content: space-evenly;
+}
+
+#hex-container > div {
+	position: relative;
+}
+
+.hex {
+	display: inline-block !important;
+	width: calc(8ch + 52px);
+	line-height: 26px !important;
+	border: 1px solid var(--bg-2);
+	border-radius: 14px;
+	font-size: 14px;
+	color: var(--text-2);
+	background: var(--bg-3);
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.hex.given {
+	border-left-width: 32px;
+	padding-right: 4px;
+}
+
+.hex.match {
+	border-right-width: 32px;
+	padding-left: 4px;
+}
+
+.hex.given:hover, .hex.given:focus, #color-name:hover, #color-name:focus {
+	border-color: var(--given);
+	box-shadow: 0 0 4px var(--glow);
+}
+
+/* Copy & settings icon 02-04-2022 */
+
+.copy-icon.given {
+	right: none;
+	left: 6px;
+	transform: scaleX(-1);
+	fill: var(--given);
+}
+
+#settings-icon {
+	fill: var(--text-3);
+	margin: 2px 0;
+	transition: fill 0.2s !important;
+}
+
+#settings-icon.active {
+	fill: var(--text-1);
+}
+
+/* Settings - 27-03-2022 */
+
+#settings {
+	position: fixed;
+	width: 100%;
+	height: 216px;
+	max-height: calc(100vh - 120px);
+	padding: 0 20px;
+	background-image: var(--settings-grad);
+	background-size: 100% 400%;
+	background-position: 0 0%;
+	box-shadow: 0 0 4px var(--shadow);
+	overflow: auto;
+	font-size: 18px;
+	transition: background-position 0.6s, height 0.3s;
+}
+
+.light-theme #settings {
+	background-position: 0 100%;
+}
+
+#settings.collapse {
+	height: 0;
+}
+
+#settings * {
+	transition: color 0.5s;
+}
+
+.settings-item {
+	display: block;
+	font-size: 14px;
+	line-height: 16px !important;
+	color: var(--text-3);
+	text-align: left;
+	position: relative;
+	margin: 8px 0;
+	white-space: nowrap;
+	overflow-x: auto;
+}
+
+.settings-item::first-line {
+	font-size: 16px;
+	color: var(--text-2);
+}
+
+.settings-item input {
+	display: inline-block;
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	accent-color: var(--match);
+}
+
+#settings:not(.collapse) + #input-panel {
+	margin-top: 216px;
+}
+
+/* Input section */
+
+#input-panel {
+	padding: 0 20px;
+	text-align: center;
+	text-transform: uppercase;
+	transition: margin 0.3s;
+}
+
+.colorspace {
+	margin-top: 12px;
+	height: 232px;
+	width: 100%;
+	display: inline-block;
+	vertical-align: top;
+	overflow: hidden;
+	font-size: 18px;
+	transition: width 0.4s, height 0.5s;
+}
+
+.colorspace.collapse {
+	height: 16px !important;
+	width: 6.5ch;
+}
+
+.lchab.collapse, .lchuv.collapse, .oklab.collapse, .oklch.collapse {
+	width: 9ch;
+}
+
+.colorspace .container {
+	transition: opacity 0.3s
+}
+
+.colorspace.collapse .container {
+	opacity: 0;
+}
+
+.hide-cap .colorspace {
+	height: 120px;
+}
+
+.colorspace-name {
+	color: var(--text-1);
+	display: inline-block;
+	transition: margin 0.3s, color 0.5s, text-shadow 0.5s;
+}
+
+#color-name, .colorspace-name {
+	text-shadow: 0 0 1px var(--text-shadow),
+	             0 0 2px var(--text-shadow);
+}
+
+.collapse .colorspace-name {
+	color: var(--text-3);
+}
+
+.hide-cap .colorspace-name {
+	margin-bottom: 8px;
+}
+
+/* Capsule style input/buttons */
+
+.cap-wrapper {
+	height: 40px;
+	display: flex;
+	justify-content: space-between;
+	overflow: hidden;
+	transition: height 0.3s;
+}
+
+.cap-wrapper * {
+	transition: background 0.7s, color 0.5s;
+}
+
+.hide-cap .cap-wrapper {
+	height: 0;
+}
+
+.capsule {
+	display: flex;
+	overflow: hidden;
+	width: 96px;
+	height: 32px;
+	border-radius: 16px;
+	background: var(--bg-1);
+}
+
+.capsule > * {
+	width: 50%;
+	line-height: 32px !important;
+	text-align: center;
+	color: var(--text-2);
+}
+
+.cap-right {
+	background: var(--bg-3);
+}
+
+.capinp {
+	font-size: 14px;
+	-moz-appearance:textfield; /* Firefox */
+}
+
+.capinp::-webkit-outer-spin-button,
+.capinp::-webkit-inner-spin-button {
+	display: none;
+	/* -webkit-appearance: none;
+	margin: 0; */
+}
+
+.capbtn {
+	font-size: 22px;
+}
+
+.slider {
+	margin-bottom: 8px;
+}
+
+/* Removing default style from input fields */
+
+input {
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-radius: 0; /* Firefox */
+	font: inherit;
+}
+
+input:focus {
+	outline: none !important;
+}
+
+input:invalid {
+	box-shadow: none !important;
+	color: #f00;
+}
+
+/* Styling range/slider input */
+
+input[type=range] {
+	-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+	width: 100%; /* Specific width is required for Firefox. */
+	height: 24px;
+	background-color: transparent; /* Otherwise white in Chrome */
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 4px;
+	background: var(--slider-track);
+	transition: background 0.5s;
+}
+
+input[type=range]::-moz-range-track {
+	width: 100%;
+	height: 4px;
+	background: var(--slider-track);
+	transition: background 0.5s;
+}
+
+input[type=range]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	box-sizing: border-box;
+	width: 24px;
+	height: 24px;
+	border: 4px solid var(--slider-track);
+	border-radius: 50%;
+	background: var(--slider-thumb);
+	margin-top: -10px;
+	transition: border-color 0.5s;
+}
+
+input[type=range]::-moz-range-thumb {
+	box-sizing: border-box;
+	width: 24px;
+	height: 24px;
+	border: 4px solid var(--slider-track);
+	border-radius: 50%;
+	background: var(--slider-thumb);
+	margin-top: -10px;
+	transition: border-color 0.5s;
+}
+
+/* Live slider - 26/03/2022 */
+/* Rewrite & transition update - 31/03/2022 */
+
+.slider {
+	background-repeat: no-repeat;
+	background-size: 0 4px;
+	background-position-x: center;
+	background-position-y: 10px;
+	transition: background 0.3s;
+}
+
+.live .slider {
+	background-size: calc(100% - 24px) 4px;
+}
+
+/* 03/04/2022 */
+.live.geek .slider {
+	background-position-y: 14px, 10px, 6px;
+}
+
+.live .slider::-webkit-slider-thumb {
+	background: var(--given);
+	border-width: 6px;
+	border-color: var(--live-thumb);
+	box-shadow: 0 0 3px rgba(0,0,0,0.25),
+	            0 0 5px var(--given);
+}
+
+.live .slider::-webkit-slider-runnable-track {
+	background: none;
+}
+
+.live .slider::-moz-range-thumb {
+	background: var(--given);
+	border-width: 6px;
+	border-color: var(--live-thumb);
+	box-shadow: 0 0 3px rgba(0,0,0,0.25),
+	            0 0 5px var(--given);
+}
+
+.live .slider::-moz-range-track {
+	background: none;
+}
+
+/* remove scrollbars */
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* palette */
+
+#palette {
+	min-height: 40px;
+	background: var(--bg-1);
+	text-align: center;
+	padding: 0 20px;
+	transition: background 0.5s;
+}
+
+#palette > div {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	margin: 0 4px 6px;
+	display: inline-block;
+	vertical-align: top;
+	padding: 4px;
+	fill: var(--bg-1);
+}
+
+#addbtn {
+	background: var(--given);
+}
+
+#palette > div > svg {
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s, fill 0.5s;
+}
+
+#addbtn > svg, div.remove-icon > svg {
+	opacity: 1 !important;
+}
+
