@@ -425,14 +425,17 @@ body {
 
 .capinp {
 	font-size: 14px;
-	-moz-appearance:textfield; /* Firefox */
 }
 
-.capinp::-webkit-outer-spin-button,
-.capinp::-webkit-inner-spin-button {
+.numinp::-webkit-outer-spin-button,
+.numinp::-webkit-inner-spin-button {
 	display: none;
 	/* -webkit-appearance: none;
 	margin: 0; */
+}
+
+.numinp {
+	-moz-appearance:textfield; /* Firefox */
 }
 
 .capbtn {
