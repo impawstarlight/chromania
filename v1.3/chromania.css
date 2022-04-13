@@ -44,7 +44,15 @@ body {
 	background: var(--bg-2);
 	font: 16px "Ubuntu Condensed";
 	line-height: 1 !important;
-	transition: background 0.8s;
+	transition: background 0.5s;
+}
+
+/* body, #output-panel, #settings { */
+#input-panel, .box, #hex-container, #search-result {
+	min-width: 320px;
+	max-width: 640px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 * {
@@ -278,10 +286,10 @@ body {
 	background-image: var(--settings-grad);
 	background-size: 100% 400%;
 	background-position: 0 0%;
-	box-shadow: 0 0 4px var(--shadow);
+	box-shadow: 0 0 1px var(--shadow);
 	overflow: auto;
 	font-size: 18px;
-	transition: background-position 0.6s, height 0.3s;
+	transition: background-position 0.5s, height 0.3s;
 }
 
 .light-theme #settings {
@@ -321,8 +329,43 @@ body {
 	accent-color: var(--match);
 }
 
-#settings:not(.collapse) + #input-panel {
+#settings:not(.collapse) + #palette {
 	margin-top: 216px;
+}
+
+/* palette */
+
+#palette {
+	background: var(--bg-1);
+	text-align: center;
+	padding: 2px 20px 0;
+	transition: background 0.5s, margin 0.3s;
+
+}
+
+#palette > div {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	margin: 0 4px 6px;
+	display: inline-block;
+	vertical-align: top;
+	padding: 4px;
+	fill: var(--bg-1);
+}
+
+#addbtn {
+	background: var(--given);
+}
+
+#palette > div > svg {
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s, fill 0.5s;
+}
+
+#addbtn > svg, div.remove-icon > svg {
+	opacity: 1 !important;
 }
 
 /* Input section */
@@ -331,7 +374,6 @@ body {
 	padding: 0 20px;
 	text-align: center;
 	text-transform: uppercase;
-	transition: margin 0.3s;
 }
 
 .colorspace {
@@ -564,39 +606,5 @@ input[type=range]::-moz-range-thumb {
 * {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
-}
-
-/* palette */
-
-#palette {
-	background: var(--bg-1);
-	text-align: center;
-	padding: 1px 20px;
-	transition: background 0.5s;
-}
-
-#palette > div {
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	margin: 0 4px 6px;
-	display: inline-block;
-	vertical-align: top;
-	padding: 4px;
-	fill: var(--bg-1);
-}
-
-#addbtn {
-	background: var(--given);
-}
-
-#palette > div > svg {
-	opacity: 0;
-	pointer-events: none;
-	transition: opacity 0.3s, fill 0.5s;
-}
-
-#addbtn > svg, div.remove-icon > svg {
-	opacity: 1 !important;
 }
 
