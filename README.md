@@ -4,6 +4,9 @@ A collection of color tools\
 for live demo
 
 ## What's new:
+### v1.3 - 12 April 2022
+- Palette - Save your favorite colors
+- Persist preferences - Continue from right where you left
 ### v1.2 - 10 April 2022
 - New colorspace - [OKLAB](https://bottosson.github.io/posts/oklab) (& OKLCH)
 - Proper gamut mapping - More accurate estimation for out of gamut colors
