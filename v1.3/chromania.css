@@ -48,7 +48,7 @@ body {
 }
 
 /* body, #output-panel, #settings { */
-#input-panel, .box, #hex-container, #search-result {
+#input-panel, .box.given, #hex-container, #search-result {
 	min-width: 320px;
 	max-width: 640px;
 	margin-left: auto;
