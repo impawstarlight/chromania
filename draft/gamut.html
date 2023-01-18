@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>SRGB Gamut Slice in OKLCH</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<script src="../library/gpu-browser.min.js"></script>
+	</head>
+	
+	<body>
+		<div id="cont">
+			<!-- another canvas to be inserted here with js -->
+			<canvas id="cnv"></canvas>
+			<!-- this one is not used right now except for setting up size of the gpu.js canvas -->
+		</div>
+		<input id="hueinp" type="range" min="0" max="360" step="0.01" value="264.1">
+		<!-- the deviation allowed in normailzed srgb, as power of 10 -->
+		<input id="deviation" type="range" min="-6" max="1" step="0.01" value="-3">
+		<div id="dbg"></div>
+	</body>
+	<script>
+"use strict"
+
+const ctx = cnv.getContext("2d");
+let width, height;
+
+
+//**** init GPU.js
+
+const gpu = new GPU();
+gpu.addFunction(oklch2rgb);
+
+const plot = gpu.createKernel(function(h, d) {
+	let { x, y } = this.thread;
+	x /= 3*this.output.x;
+	y /= this.output.y;
+	let [r,g,b] = oklch2rgb([y, x, h]);
+	const bg = 0.5;
+	const min = -d;
+	const max = 1+d;
+	if (r > min && r < max &&
+		g > min && g < max &&
+		b > min && b < max)
+		this.color(r,g,b);
+	else this.color(bg,bg,bg);
+	
+}).setGraphical(true);
+
+
+function oklch2rgb(lch) {
+	let [L,c,h] = lch;
+	h = h*Math.PI/180;
+	let a = c*Math.cos(h);
+	let b = c*Math.sin(h);
+	
+	
+	let l = L + 0.3963377774 * a + 0.2158037573 * b;
+	let m = L - 0.1055613458 * a - 0.0638541728 * b;
+	let s = L - 0.0894841775 * a - 1.2914855480 * b;
+
+	l = l*l*l;
+	m = m*m*m;
+	s = s*s*s;
+
+	const rgb = [
+		 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+		-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+		-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
+	];
+	
+	
+	for (let i = 0; i < 3; i++) {
+		if (rgb[i] > (0.04045 / 12.92))
+			rgb[i] = rgb[i]**(5/12) * 1.055 - 0.055;
+		else
+			rgb[i] *= 12.92;
+	}
+	
+	return rgb;
+}
+
+/** end GPU.js **/
+
+
+window.onload = () => {
+	const size = cnv.clientWidth;
+	const scaled_size =  size * window.devicePixelRatio;
+	const ratio = 1;
+	
+	cnv.style.height = size/ratio;
+	cnv.width = width = scaled_size;
+	cnv.height = height = scaled_size/ratio;
+	
+	plot.setOutput([width, height]);
+	plot.canvas.id = "gpu";
+	cont.insertBefore(plot.canvas, cnv);
+	
+	hueinp.addEventListener("input", update);
+	deviation.addEventListener("input", update);
+	
+	update();
+}
+
+
+function update() {
+	const d = 10**(+deviation.value);
+	plot(+hueinp.value, d);
+	dbg.innerHTML = "Hue: " + hueinp.value +
+		"<br/>Deviation : 10<sup>" + deviation.value +
+		"</sup> = " + Math.round(1e6*d)/1e6 + "<sub><sub>[0, 1]</sub></sub>" +
+		" = " + Math.round(1e3*d*255)/1e3 + "<sub><sub>[0, 255]</sub></sub>";
+}
+
+
+	</script>
+	<style>
+
+html {
+	background: #222;
+}
+
+body {
+	margin: 20px;
+	max-width: 720px;
+}
+
+#cont {
+	margin: 20px 0;
+	background: #333;
+	position: relative;
+}
+
+#cnv, #gpu {
+	display: block;
+	width: 100%;
+	/* height set equal to width with js */
+	outline: 2px solid #444;
+}
+
+#cnv {
+	position: absolute;
+	top: 0;
+}
+
+#hueinp, #deviation {
+	padding: 20px 0;
+}
+
+#dbg {
+	color: #ddd;
+}
+
+/* Styling range/slider input */
+
+input[type=range] {
+	-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+	width: 100%; /* Specific width is required for Firefox. */
+	height: 24px;
+	background-color: transparent; /* Otherwise white in Chrome */
+	
+	--slider-track: #666;
+	--slider-thumb: #ccc;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 4px;
+	background: var(--slider-track);
+	transition: background 0.5s;
+}
+
+input[type=range]::-moz-range-track {
+	width: 100%;
+	height: 4px;
+	background: var(--slider-track);
+	transition: background 0.5s;
+}
+
+input[type=range]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	box-sizing: border-box;
+	width: 24px;
+	height: 24px;
+	border: 4px solid var(--slider-track);
+	border-radius: 50%;
+	background: var(--slider-thumb);
+	margin-top: -10px;
+	transition: border-color 0.5s;
+}
+
+input[type=range]::-moz-range-thumb {
+	box-sizing: border-box;
+	width: 24px;
+	height: 24px;
+	border: 4px solid var(--slider-track);
+	border-radius: 50%;
+	background: var(--slider-thumb);
+	margin-top: -10px;
+	transition: border-color 0.5s;
+}
+
+
+	</style>
+</html>
