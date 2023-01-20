@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>SRGB Gamut Slice in OKLCH</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<script src="../library/gpu-browser.min.js"></script>
+	</head>
+	
+	<body>
+		<div id="cont">
+			<!-- canvas to be inserted with js -->
+		</div>
+		<input id="liginp" type="range" min="0" max="100" step="0.01" value="50">
+		<input id="chrinp" type="range" min="0" max="33" step="0.01" value="10">
+		<input id="hueinp" type="range" min="0" max="360" step="0.01" value="20">
+		
+		
+		<!-- the deviation allowed in normailzed srgb, as power of 10 -->
+		<input id="deviation" type="range" min="-6" max="2" step="0.01" value="-3">
+		<input id="cnvsize" type="range" min="100" max="2000" step="100" value="100">
+		<div id="dbg"></div>
+	</body>
+	<script>
+"use strict"
+
+let gpu,  plot;
+let mode = "gpu", flag = 2
+let width, height;
+
+
+window.onload = () => {
+	const size = 100;//cont.clientWidth * window.devicePixelRatio;
+	initShit(size);
+	
+	hueinp.addEventListener("input", update);
+	chrinp.addEventListener("input", update);
+	liginp.addEventListener("input", update);
+	deviation.addEventListener("input", update);
+	cnvsize.addEventListener("input", update);
+	
+	cont.onclick = () => {
+		if (mode.toLowerCase() == "gpu")
+			mode = "cpu";
+		else
+			mode = "gpu";
+		
+		update(mode);
+	}
+	
+	update();
+}
+
+
+function update(event) {
+	const d = 10**(+deviation.value);
+	const inps = document.querySelectorAll("input[type=range]");
+	const size = +cnvsize.value;
+	
+	if (event) {
+		if (typeof event == "string" || this.id == "cnvsize")
+			initShit(size);
+		else
+			flag =
+				(this.id == inps[0].id) ? 0:
+				(this.id == inps[1].id) ? 1:
+				(this.id == inps[2].id) ? 2:
+				flag;
+	}
+	
+	console.time(mode+" "+size);
+	plot(+inps[flag].value, d, flag)
+	console.timeEnd(mode+" "+size);
+	
+	
+	dbg.innerHTML = "Hue: " + hueinp.value + " Chroma: " + chrinp.value + " Lightness: " + liginp.value +
+		"<br/>Deviation : 10<sup>" + deviation.value +
+		"</sup> = " + Math.round(1e6*d)/1e6 + "<sub><sub>[0, 1]</sub></sub>" +
+		" = " + Math.round(1e3*d*255)/1e3 + "<sub><sub>[0, 255]</sub></sub>" +
+		"<br/>Resolution: " + width + " x " + height + " " + mode.toUpperCase();
+}
+
+
+
+//**** init GPU.js
+
+function initShit(size) {
+	const whratio = 1;
+	
+	width = size;
+	height = size/whratio;
+	
+	gpu = new GPU({ mode });
+	gpu.addFunction(oklch2rgb);
+	gpu.addFunction(oklrch2oklch);
+	
+	if (plot) plot.canvas.remove();
+	
+	plot = gpu.createKernel(fplot)
+		.setOutput([width, height])
+		.setGraphical(true)
+		//.setDynamicOutput(true)
+		//.setPipeline(true);
+	
+	plot.canvas.id = "gpu";
+	cont.appendChild(plot.canvas);
+}
+
+function fplot(n, d, p) { // n = input, d = deviation, p = input type
+	let { x, y } = this.thread;
+	x /= this.output.x-1;
+	y /= this.output.y-1;
+	
+	//if (re == 1)
+	let re = false;
+	let lch = [0,0,0];
+	
+	if (p == 0)
+		lch = [n/100, y/3, x*360];
+	else if (p == 1)
+		lch = [y, n/100, x*360];
+	else if (p == 2)
+		lch = [y, x/3, n];
+	
+	const rgb = oklch2rgb(lch, re);
+	const [r,g,b] = rgb;
+	const bg = 0.5;
+	const min = -d;
+	const max = 1+d;
+	if (r > min && r < max &&
+		g > min && g < max &&
+		b > min && b < max)
+		this.color(r,g,b);
+	else this.color(bg,bg,bg);
+	
+	//return rgb;
+}
+
+
+function oklch2rgb(lch, relight) {
+	if (relight) lch = oklrch2oklch(lch);
+	let [L,c,h] = lch;
+	
+	h = h*Math.PI/180;
+	let a = c*Math.cos(h);
+	let b = c*Math.sin(h);
+	
+	
+	let l = L + 0.3963377774 * a + 0.2158037573 * b;
+	let m = L - 0.1055613458 * a - 0.0638541728 * b;
+	let s = L - 0.0894841775 * a - 1.2914855480 * b;
+
+	l = l*l*l;
+	m = m*m*m;
+	s = s*s*s;
+
+	const rgb = [
+		 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+		-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+		-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
+	];
+	
+	
+	for (let i = 0; i < 3; i++) {
+		if (rgb[i] > (0.04045 / 12.92))
+			rgb[i] = rgb[i]**(5/12) * 1.055 - 0.055;
+		else
+			rgb[i] *= 12.92;
+	}
+	
+	return rgb;
+}
+
+
+function oklrch2oklch(lch) {
+	let [L,c,h] = lch;
+	
+	// Lr - the new Lightness estimate for OKHSV
+	const k1 = 0.206,
+		k2 = 0.03,
+		k3 = (1+k1)/(1+k2);
+	L = L/k3 * (L+k1)/(L+k2);
+	
+	if (lch[0] != 0)
+		c *= L/lch[0];
+	
+	return [L,c,h];
+}
+
+function oklrch2rgb(lch) {
+	return oklch2rgb(oklrch2oklch(lch));
+}
+
+
+
+/** end GPU.js **/
+
+
+	</script>
+	<style>
+
+html {
+	background: #222;
+}
+
+body {
+	margin: 20px;
+	max-width: 720px;
+}
+
+#cont {
+	margin: 20px 0;
+	background: #333;
+	position: relative;
+}
+
+#cont > canvas {
+	display: block;
+	width: 100%;
+	/* height seems to be auto */
+	outline: 2px solid #444;
+}
+
+input[type="range"] {
+	padding: 10px 0;
+}
+
+#cnvsize {
+	--slider-thumb: salmon;
+}
+
+#pointer {
+	position: absolute;
+	top: 54.8%;
+	left: 93.9%;
+	margin: -4px 0 0 -4px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	outline: 2px solid #fff;
+}
+
+#dbg {
+	color: #ddd;
+}
+
+/* Styling range/slider input */
+
+input[type=range] {
+	-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+	width: 100%; /* Specific width is required for Firefox. */
+	height: 24px;
+	background-color: transparent; /* Otherwise white in Chrome */
+	
+	--slider-track: #666;
+	--slider-thumb: #ccc;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 4px;
+	background: var(--slider-track);
+	transition: background 0.5s;
+}
+
+input[type=range]::-moz-range-track {
+	width: 100%;
+	height: 4px;
+	background: var(--slider-track);
+	transition: background 0.5s;
+}
+
+input[type=range]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	box-sizing: border-box;
+	width: 24px;
+	height: 24px;
+	border: 4px solid var(--slider-track);
+	border-radius: 50%;
+	background: var(--slider-thumb);
+	margin-top: -10px;
+	transition: border-color 0.5s;
+}
+
+input[type=range]::-moz-range-thumb {
+	box-sizing: border-box;
+	width: 24px;
+	height: 24px;
+	border: 4px solid var(--slider-track);
+	border-radius: 50%;
+	background: var(--slider-thumb);
+	margin-top: -10px;
+	transition: border-color 0.5s;
+}
+
+
+	</style>
+</html>
