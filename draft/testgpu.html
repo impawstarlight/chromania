@@ -1,0 +1,35 @@
+<meta charset="utf-8">
+<script src="../library/Cg.js"></script>
+<script src="../library/gpu-browser.js"></script>
+<script>
+
+const gpu = new GPU();
+//gpu.addFunction(Cc.lrgb2xyz);
+for (let f in Cg)
+//if (Cg[f].toString().match("function "))
+gpu.addFunction(Cg[f]);
+//gpu.addFunction(Cc.rgb2hsl);
+
+const kr = gpu.createKernel(function(v) {
+	//return linear2rgb(oklab2lrgb([this.thread.x/this.output.x, 0, 0]));
+	return maxChroma(this.thread.x, 0.5);
+	
+}, { output: [4] });
+
+for (let i = 0; i < 10; i++) {
+console.time();
+console.log(kr(0).length);
+console.timeEnd();
+}
+
+
+/*
+for (let n = 0; n < 100; n++) {
+console.time("loop");
+let A = [];
+for (let i = 0; i <= 360; i++)
+	A.push(Cc.oklch2rgb([0.6, 0.1, i]));
+console.timeEnd("loop");
+}*/
+
+</script>
