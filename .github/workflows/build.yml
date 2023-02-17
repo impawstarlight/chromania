@@ -5,20 +5,20 @@ on:
       - '!main'
   pull_request:
     branches:
-      - '!main'
-
+      - '**'
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-  - uses: actions/checkout@v2
-    name: Check out code
-
-  - uses: mr-smithers-excellent/docker-build-push@v5
-    name: Build Docker image
-    with:
-      image: nginx
-      tags: latest
-      pushImage: false
-      registry: docker.io
-      dockerfile: Dockerfile
+    -
+      uses: actions/checkout@v2
+      name: Check out code
+    -
+      uses: mr-smithers-excellent/docker-build-push@v5
+      name: Build Docker image
+      with:
+        image: nginx
+        tags: latest
+        pushImage: false
+        registry: docker.io
+        dockerfile: Dockerfile
