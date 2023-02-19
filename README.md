@@ -3,6 +3,19 @@ A collection of color tools\
 [Click here](https://impawstarlight.github.io/chromania)
 for live demo
 
+### Deployment
+## Direct Deploy
+Clone the repo and open index.html to view in your browser
+or
+Either Clone the repo and move it to your www/html folder or
+download as zip file and unzip it on an appropriate folder
+
+## Docker Deploy
+To deploy it with docker with the latest version, run the following
+```bash
+docker run -d -p 80:80 devsh01/chromania:latest
+```
+
 ## What's new:
 ### v1.3 - 12 April 2022
 - Palette - Save your favorite colors
