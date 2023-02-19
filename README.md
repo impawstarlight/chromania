@@ -6,8 +6,9 @@ for live demo
 ### Deployment
 ## Direct Deploy
 Clone the repo and open index.html to view in your browser
-or
-Either Clone the repo and move it to your www/html folder or
+
+#or
+Clone the repo and move it to your www/html folder or
 download as zip file and unzip it on an appropriate folder
 
 ## Docker Deploy
