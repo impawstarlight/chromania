@@ -1,35 +1,81 @@
+
 <meta charset="utf-8">
-<script src="../library/Cg.js"></script>
+<div id="cont"></div>
+<script src="../library/Cc1.4.js"></script>
 <script src="../library/gpu-browser.js"></script>
 <script>
 
-const gpu = new GPU();
-//gpu.addFunction(Cc.lrgb2xyz);
-for (let f in Cg)
-//if (Cg[f].toString().match("function "))
-gpu.addFunction(Cg[f]);
-//gpu.addFunction(Cc.rgb2hsl);
 
-const kr = gpu.createKernel(function(v) {
-	//return linear2rgb(oklab2lrgb([this.thread.x/this.output.x, 0, 0]));
-	return maxChroma(this.thread.x, 0.5);
+const KR = [];
+let FUNCS = [
+	"xyz2rgb", "lab2rgb", "lchab2rgb",
+	"luv2rgb", "lchuv2rgb",
+	"oklab2rgb", "oklch2rgb"
+];
+
+
+const BOUNDS = [
+	[0, 95], [0, 100], [0, 109],
+	[0, 100], [-87, 186], [-108, 193],
+	[0, 100], [0, 134], [0, 360],
+	[0, 100], [-84, 259], [-134, 242],
+	[0, 100], [0, 179], [0, 360],
+	[0, 1], [-.24, .52], [-.32, .52],
+	[0, 1], [0, .33], [0, 360]
+];
+
+//for (let i = 0; i < 21; i++) {
+let i = 0;
+function crkr() {
+	const func = FUNCS[parseInt(i/3)];
+	//console.log(func);
+	const gpu = new GPU();
+	for (let f in Cg)
+		gpu.addFunction(Cg[f]);
 	
-}, { output: [4] });
-
-for (let i = 0; i < 10; i++) {
-console.time();
-console.log(kr(0).length);
-console.timeEnd();
+	const kr = gpu.createKernel(`function(A) {
+		let V = [A[0], A[1], A[2]]; // TODO: benchmark 0.5 & B, i as constants
+		V[this.constants.i]
+			= this.constants.B[0]
+			+ this.constants.B[1]
+			* (this.thread.x+0.5) / this.output.x;
+		
+		const [p,q,r] = chromaClip(${func}(V));
+		this.color(p,q,r);
+	}`, {
+		output: [344, 40],
+		graphical: true,
+		//canvas: document.createElement("canvas"),
+		constants: {
+			B: BOUNDS[i],
+			i: i % 3
+		}
+	});
+	
+	kr.canvas.id = "c"+i;
+	cont.appendChild(kr.canvas);
+	kr([.5,.5,.5]);
+	KR.push(kr);
+	if (++i < 21) setTimeout(crkr, 500);
 }
 
+crkr();
+/*
+KR[0]([.75,.1275,270]);
+KR[1]([.75,.1275,270]);
+KR[2]([.75,.1275,270]);
+*/
+//for (let i = 0; i < 8; i++)
+	;//KR[i]([1,1,1]);
 
 /*
-for (let n = 0; n < 100; n++) {
-console.time("loop");
-let A = [];
-for (let i = 0; i <= 360; i++)
-	A.push(Cc.oklch2rgb([0.6, 0.1, i]));
-console.timeEnd("loop");
-}*/
+Notes:
+canv limit?
+toblob vs todataurl
+
+
+
+*/
 
 </script>
+ 
