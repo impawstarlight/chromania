@@ -194,6 +194,7 @@ body {
 .box {
 	min-height: 40px;
 	border-radius: 20px;
+	cursor: pointer;
 }
 
 .box.given {
@@ -269,6 +270,7 @@ body {
 	fill: var(--text-3);
 	margin: 2px 0;
 	transition: fill 0.2s !important;
+	cursor: pointer;
 }
 
 #settings-icon.active {
@@ -352,6 +354,7 @@ body {
 	vertical-align: top;
 	padding: 4px;
 	fill: var(--bg-1);
+	cursor: pointer;
 }
 
 #addbtn {
@@ -412,6 +415,7 @@ body {
 	color: var(--text-1);
 	display: inline-block;
 	transition: margin 0.3s, color 0.5s, text-shadow 0.5s;
+	cursor: pointer;
 }
 
 #color-name, .colorspace-name {
@@ -482,6 +486,7 @@ body {
 
 .capbtn {
 	font-size: 22px;
+	cursor: pointer;
 }
 
 .slider {
